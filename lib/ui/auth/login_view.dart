@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:practichub_flutter/ui/auth/forgot_password_view.dart';
+import 'registro_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -90,26 +90,39 @@ class _LoginViewState extends State<LoginView> {
                       // Sin funcionalidad
                     },
                   ),
-                  const SizedBox(height: 16),
-                  // Forgot password
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ForgotPasswordView(),
+                  const SizedBox(height: 24),
+                  // Link a Registro
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        '¿No tienes cuenta? ',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
                         ),
-                      );
-                    },
-                    child: const Text(
-                      'Forgot your password?',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        decoration: TextDecoration.underline,
-                        decorationColor: Colors.white,
                       ),
-                    ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const RegistroView(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          'Regístrate',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 40),
                 ],
@@ -213,7 +226,7 @@ class _LoginViewState extends State<LoginView> {
     required VoidCallback onPressed,
   }) {
     return Container(
-      width: 160,
+      width: double.infinity,
       height: 50,
       decoration: BoxDecoration(
         gradient: const LinearGradient(

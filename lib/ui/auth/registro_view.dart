@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class ForgotPasswordView extends StatefulWidget {
-  const ForgotPasswordView({super.key});
+class RegistroView extends StatefulWidget {
+  const RegistroView({super.key});
 
   @override
-  State<ForgotPasswordView> createState() => _ForgotPasswordViewState();
+  State<RegistroView> createState() => _RegistroViewState();
 }
 
-class _ForgotPasswordViewState extends State<ForgotPasswordView> {
+class _RegistroViewState extends State<RegistroView> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
+  final _nombreController = TextEditingController();
+  final _apellidoController = TextEditingController();
+  final _correoController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _nombreController.dispose();
+    _apellidoController.dispose();
+    _correoController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -48,58 +55,86 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                   // Logo
                   _buildLogo(),
                   const SizedBox(height: 16),
-                  // Título PracticHub
+                  // Título
                   const Text(
-                    'PracticHub',
+                    'Registro',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  // Texto explicativo
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      'Enter your login username to receive a code to change your password in your associated email.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
-                        fontSize: 14,
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  // Campo de Username
+                  const SizedBox(height: 48),
+                  // Campo de Nombre
                   _buildTextField(
-                    controller: _usernameController,
-                    hintText: 'Username',
+                    controller: _nombreController,
+                    hintText: 'Nombre',
+                    icon: Icons.person,
+                  ),
+                  const SizedBox(height: 16),
+                  // Campo de Apellido
+                  _buildTextField(
+                    controller: _apellidoController,
+                    hintText: 'Apellido',
+                    icon: Icons.person_outline,
+                  ),
+                  const SizedBox(height: 16),
+                  // Campo de Correo
+                  _buildTextField(
+                    controller: _correoController,
+                    hintText: 'Correo electrónico',
+                    icon: Icons.email,
+                  ),
+                  const SizedBox(height: 16),
+                  // Campo de Contraseña
+                  _buildTextField(
+                    controller: _passwordController,
+                    hintText: 'Contraseña',
+                    icon: Icons.lock,
+                    isPassword: true,
+                    obscureText: _obscurePassword,
+                    onTogglePassword: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
                   ),
                   const SizedBox(height: 32),
-                  // Botón Send email
+                  // Botón Registrarse
                   _buildGradientButton(
-                    text: 'Send email',
+                    text: 'Registrarse',
                     onPressed: () {
                       // Sin funcionalidad
                     },
                   ),
-                  const SizedBox(height: 16),
-                  // Link Login
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text(
-                      'Login',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        decoration: TextDecoration.underline,
-                        decorationColor: Colors.white,
+                  const SizedBox(height: 24),
+                  // Link a Login
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        '¿Ya tienes cuenta? ',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                        ),
                       ),
-                    ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text(
+                          'Inicia sesión',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 40),
                 ],
@@ -139,6 +174,10 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
   Widget _buildTextField({
     required TextEditingController controller,
     required String hintText,
+    required IconData icon,
+    bool isPassword = false,
+    bool obscureText = false,
+    VoidCallback? onTogglePassword,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -154,13 +193,39 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
       ),
       child: TextFormField(
         controller: controller,
+        obscureText: isPassword ? obscureText : false,
         style: const TextStyle(color: Colors.black87),
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(color: Colors.grey.shade500),
+          prefixIcon: Container(
+            margin: const EdgeInsets.only(left: 12, right: 8),
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF5B8DEF), Color(0xFF9B59B6)],
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: Colors.white, size: 18),
+            ),
+          ),
+          prefixIconConstraints: const BoxConstraints(minWidth: 60),
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(
+                    obscureText ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.grey,
+                  ),
+                  onPressed: onTogglePassword,
+                )
+              : null,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
-            horizontal: 24,
+            horizontal: 20,
             vertical: 18,
           ),
         ),
@@ -173,7 +238,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
     required VoidCallback onPressed,
   }) {
     return Container(
-      width: 160,
+      width: double.infinity,
       height: 50,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
