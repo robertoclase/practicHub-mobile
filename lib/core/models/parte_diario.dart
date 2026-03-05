@@ -37,13 +37,19 @@ class ParteDiario extends Equatable {
   });
 
   /// Crea un ParteDiario desde JSON
-  static int _toInt(dynamic val) => val is int ? val : int.parse(val.toString());
+  static int _toInt(dynamic val) {
+    if (val == null) return 0;
+    if (val is int) return val;
+    return int.tryParse(val.toString()) ?? 0;
+  }
 
   factory ParteDiario.fromJson(Map<String, dynamic> json) {
     return ParteDiario(
       id: _toInt(json['id']),
       seguimientoPracticaId: _toInt(json['seguimiento_practica_id']),
-      fecha: DateTime.parse(json['fecha'] as String),
+      fecha: json['fecha'] != null
+          ? DateTime.parse(json['fecha'].toString())
+          : DateTime.now(),
       // La API usa 'horas_realizadas', soportamos también 'horas_trabajadas' como fallback
       horasTrabajadas: _toInt(json['horas_realizadas'] ?? json['horas_trabajadas'] ?? 0),
       // La API usa 'actividades_realizadas'
@@ -56,8 +62,8 @@ class ParteDiario extends Equatable {
       validadoEmpresa: json['validado_tutor'] == 1 || json['validado_tutor'] == true || json['validado_empresa'] == true,
       observacionesProfesor: json['observaciones_profesor'] as String?,
       observacionesEmpresa: json['observaciones_empresa'] as String?,
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
-      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at'] as String) : null,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'].toString()) : null,
+      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at'].toString()) : null,
       seguimientoPractica: json['seguimiento_practica'] as Map<String, dynamic>?,
     );
   }

@@ -14,8 +14,9 @@ import 'parte_detail_page.dart';
 
 class PartesPage extends StatefulWidget {
   final int? seguimientoId;
+  final String? role;
 
-  const PartesPage({super.key, this.seguimientoId});
+  const PartesPage({super.key, this.seguimientoId, this.role});
 
   @override
   State<PartesPage> createState() => _PartesPageState();
@@ -33,6 +34,7 @@ class _PartesPageState extends State<PartesPage> {
       )..add(LoadPartes(seguimientoId: widget.seguimientoId)),
       child: PartesView(
         seguimientoId: widget.seguimientoId,
+        role: widget.role,
         currentFilter: _currentFilter,
         onFilterChanged: (filter) {
           setState(() {
@@ -46,12 +48,14 @@ class _PartesPageState extends State<PartesPage> {
 
 class PartesView extends StatelessWidget {
   final int? seguimientoId;
+  final String? role;
   final String currentFilter;
   final Function(String) onFilterChanged;
 
   const PartesView({
     super.key,
     this.seguimientoId,
+    this.role,
     required this.currentFilter,
     required this.onFilterChanged,
   });
@@ -146,7 +150,7 @@ class PartesView extends StatelessWidget {
           return const SizedBox.shrink();
         },
       ),
-      floatingActionButton: seguimientoId != null
+      floatingActionButton: (seguimientoId != null || role == 'alumno')
           ? FloatingActionButton.extended(
               onPressed: () => _navigateToCreateParte(context),
               icon: const Icon(Icons.add),
@@ -160,7 +164,7 @@ class PartesView extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => CrearPartePage(seguimientoId: seguimientoId!),
+        builder: (_) => CrearPartePage(seguimientoId: seguimientoId),
       ),
     ).then((_) {
       // Recargar después de crear

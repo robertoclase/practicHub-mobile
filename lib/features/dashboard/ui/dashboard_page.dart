@@ -57,7 +57,7 @@ class _DashboardPageState extends State<DashboardPage> {
         case 1:
           return const SeguimientosPage();
         case 2:
-          return const PartesPage();
+          return const PartesPage(role: 'alumno');
         case 3:
           return const EmpresasPage();
         default:
@@ -68,7 +68,7 @@ class _DashboardPageState extends State<DashboardPage> {
         case 1:
           return const SeguimientosPage();
         case 2:
-          return const PartesPage();
+          return const PartesPage(role: 'profesor');
         case 3:
           return _buildPlaceholder('Crear Valoraciones', Icons.star);
         default:
@@ -79,7 +79,7 @@ class _DashboardPageState extends State<DashboardPage> {
         case 1:
           return const SeguimientosPage();
         case 2:
-          return const PartesPage();
+          return const PartesPage(role: 'empresa');
         default:
           return _buildHomePage(role);
       }

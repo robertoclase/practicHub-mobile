@@ -115,7 +115,8 @@ class _SeguimientoCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Cabecera con empresa e icono
+              // Si viene el alumno (profesor/empresa viendo a sus alumnos), mostrar alumno
+              // Si no (el propio alumno), mostrar empresa
               Row(
                 children: [
                   Container(
@@ -125,7 +126,7 @@ class _SeguimientoCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
-                      Icons.business,
+                      seguimiento.alumno != null ? Icons.person : Icons.business,
                       color: theme.colorScheme.primary,
                       size: 24,
                     ),
@@ -136,14 +137,20 @@ class _SeguimientoCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          seguimiento.empresa?.nombre ?? 'Empresa no asignada',
+                          // Alumno viendo su práctica → muestra empresa
+                          // Profesor/empresa → muestra nombre del alumno
+                          seguimiento.alumno != null
+                              ? (seguimiento.alumno?.name ?? 'Alumno')
+                              : (seguimiento.empresa?.nombre ?? 'Empresa no asignada'),
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          seguimiento.empresa?.direccion ?? '',
+                          seguimiento.alumno != null
+                              ? (seguimiento.alumno?.email ?? '')
+                              : (seguimiento.empresa?.direccion ?? ''),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: Colors.grey[600],
                           ),

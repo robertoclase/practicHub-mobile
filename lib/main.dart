@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/bloc/auth_bloc.dart';
 import 'features/auth/bloc/auth_event.dart';
@@ -8,7 +10,9 @@ import 'features/auth/ui/login_page.dart';
 import 'features/auth/ui/register_page.dart';
 import 'features/dashboard/ui/dashboard_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('es_ES', null);
   runApp(const PracticHubApp());
 }
 
@@ -23,6 +27,17 @@ class PracticHubApp extends StatelessWidget {
         title: 'PracticHub',
         theme: AppTheme.lightTheme,
         debugShowCheckedModeBanner: false,
+        // Necesario para DatePickerDialog y widgets Material con locale es
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('es', 'ES'),
+          Locale('en', 'US'),
+        ],
+        locale: const Locale('es', 'ES'),
         home: const AuthGate(),
         routes: {
           '/login': (context) => const LoginPage(),

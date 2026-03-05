@@ -53,9 +53,20 @@ class SeguimientosService {
         .toList();
   }
 
-  /// Obtiene el detalle de un seguimiento específico
-  Future<SeguimientoPractica> getSeguimientoDetalle(int id) async {
-    final response = await _client.get('/alumno/practicas/$id');
+  /// Obtiene el detalle de un seguimiento específico (role-aware)
+  Future<SeguimientoPractica> getSeguimientoDetalle(int id, String role) async {
+    String endpoint;
+    switch (role) {
+      case 'empresa':
+        endpoint = '/empresa/seguimientos/$id';
+        break;
+      case 'profesor':
+        endpoint = '/seguimientos/$id';
+        break;
+      default: // alumno
+        endpoint = '/alumno/mis-practicas/$id';
+    }
+    final response = await _client.get(endpoint);
     return SeguimientoPractica.fromJson(_asMap(response));
   }
 }
@@ -67,7 +78,7 @@ class PartesService {
   /// Obtiene partes diarios (con filtro opcional por seguimiento)
   Future<List<ParteDiario>> getPartes({int? seguimientoId}) async {
     final String endpoint = seguimientoId != null
-        ? '/alumno/practica/$seguimientoId/partes'
+        ? '/alumno/practicas/$seguimientoId/partes'
         : ApiConfig.misPartesEndpoint;
     
     final response = await _client.get(endpoint);
@@ -90,7 +101,8 @@ class PartesService {
 
   /// Obtiene el detalle de un parte específico
   Future<ParteDiario> getParteDetalle(int id) async {
-    final response = await _client.get('/alumno/partes/$id');
+    // /partes-diarios/{id} es accesible con auth:sanctum para todos los roles
+    final response = await _client.get('/partes-diarios/$id');
     return ParteDiario.fromJson(_asMap(response));
   }
 
@@ -103,8 +115,9 @@ class PartesService {
     String? incidencias,
     String? observaciones,
   }) async {
+    // Usa ruta específica de alumno que valida que el seguimiento le pertenece
     final response = await _client.post(
-      ApiConfig.parteDiariosEndpoint,
+      '/alumno/mis-partes',
       {
         'seguimiento_practica_id': seguimientoId,
         'fecha': fecha.toIso8601String().split('T')[0],
@@ -129,23 +142,26 @@ class PartesService {
     final String endpoint = isEmpresa
         ? '${ApiConfig.empresaValidarParteEndpoint}/$parteId/validar'
         : '${ApiConfig.profesorValidarParteEndpoint}/$parteId/validar';
-    
-    final response = await _client.post(
-      endpoint,
-      {
-        if (isEmpresa)
-          'validado_empresa': validado
-        else
-          'validado': validado,
-        if (observaciones != null && observaciones.isNotEmpty)
-          if (isEmpresa)
-            'observaciones_empresa': observaciones
-          else
-            'observaciones': observaciones,
-      },
-    );
-    
-    return ParteDiario.fromJson(_asMap(response));
+
+    final body = <String, dynamic>{};
+    if (isEmpresa) {
+      // empresa: campo validado_tutor, puede enviar simplemente true
+    } else {
+      body['validado'] = validado;
+      if (observaciones != null && observaciones.isNotEmpty) {
+        body['observaciones'] = observaciones;
+      }
+    }
+
+    final response = await _client.put(endpoint, body);
+
+    // La API de empresa devuelve {"message":..., "parte": {...}}
+    // La API de profesor devuelve directamente el parte o {"parte": {...}}
+    final map = _asMap(response);
+    if (map.containsKey('parte') && map['parte'] is Map<String, dynamic>) {
+      return ParteDiario.fromJson(map['parte'] as Map<String, dynamic>);
+    }
+    return ParteDiario.fromJson(map);
   }
 }
 
@@ -163,7 +179,8 @@ class EmpresasService {
 
   /// Obtiene el detalle de una empresa
   Future<Empresa> getEmpresaDetalle(int id) async {
-    final response = await _client.get('${ApiConfig.empresasListadoEndpoint}/$id');
+    // /empresas/{id} accesible con auth:sanctum; /empresas/listado es solo listing público
+    final response = await _client.get('/empresas/$id');
     return Empresa.fromJson(_asMap(response));
   }
 }

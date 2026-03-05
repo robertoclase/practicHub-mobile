@@ -157,7 +157,8 @@ class _PeriodoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final fechaFin = DateFormatter.parseDate(seguimiento.fechaFin) ?? DateTime.now();
+    // fechaFin ya es DateTime en el modelo, no necesita parseDate
+    final fechaFin = seguimiento.fechaFin as DateTime;
     final diasRestantes = DateFormatter.daysBetween(
       DateTime.now(),
       fechaFin,
@@ -359,14 +360,14 @@ class _EmpresaSection extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            if (empresa.cif != null)
+            if (empresa.cif.isNotEmpty)
               _InfoItem(
                 icon: Icons.badge,
                 label: 'CIF',
                 value: empresa.cif,
                 color: Colors.orange,
               ),
-            if (empresa.telefono != null) ...[
+            if (empresa.telefono.isNotEmpty) ...[
               const SizedBox(height: 12),
               _InfoItem(
                 icon: Icons.phone,
@@ -375,12 +376,12 @@ class _EmpresaSection extends StatelessWidget {
                 color: Colors.orange,
               ),
             ],
-            if (empresa.emailContacto != null) ...[
+            if (empresa.email.isNotEmpty) ...[
               const SizedBox(height: 12),
               _InfoItem(
                 icon: Icons.email,
                 label: 'Email de Contacto',
-                value: empresa.emailContacto,
+                value: empresa.email,
                 color: Colors.orange,
               ),
             ],

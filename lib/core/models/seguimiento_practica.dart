@@ -48,7 +48,11 @@ class SeguimientoPractica extends Equatable {
     this.totalValoraciones,
   });
 
-  static int _toInt(dynamic val) => val is int ? val : int.parse(val.toString());
+  static int _toInt(dynamic val) {
+    if (val == null) return 0;
+    if (val is int) return val;
+    return int.tryParse(val.toString()) ?? 0;
+  }
   static int? _toIntOrNull(dynamic val) => val == null ? null : _toInt(val);
 
   /// Crea un SeguimientoPractica desde JSON
@@ -61,8 +65,12 @@ class SeguimientoPractica extends Equatable {
       userId: _toInt(json['user_id']),
       titulo: json['titulo'] as String? ?? '',
       descripcion: json['descripcion'] as String? ?? '',
-      fechaInicio: DateTime.parse(json['fecha_inicio'] as String),
-      fechaFin: DateTime.parse(json['fecha_fin'] as String),
+      fechaInicio: json['fecha_inicio'] != null
+          ? DateTime.parse(json['fecha_inicio'].toString())
+          : DateTime.now(),
+      fechaFin: json['fecha_fin'] != null
+          ? DateTime.parse(json['fecha_fin'].toString())
+          : DateTime.now(),
       horasTotales: _toIntOrNull(json['horas_totales']) ?? 0,
       estado: json['estado'] as String? ?? 'activa',
       objetivos: json['objetivos'] as String?,

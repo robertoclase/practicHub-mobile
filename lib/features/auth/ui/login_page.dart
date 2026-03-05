@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_textfield.dart';
 import '../../../core/utils/validators.dart';
@@ -42,18 +43,107 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  /// Toast de error tipo notificación flotante con icono contextual
+  void _showErrorToast(BuildContext context, String message) {
+    final lower = message.toLowerCase();
+
+    IconData icon;
+    String title;
+    if (lower.contains('correo') || lower.contains('no existe') || lower.contains('cuenta')) {
+      icon = Icons.person_off_outlined;
+      title = 'Usuario no encontrado';
+    } else if (lower.contains('contraseña') || lower.contains('contrase')) {
+      icon = Icons.lock_outline;
+      title = 'Contraseña incorrecta';
+    } else if (lower.contains('inactiv')) {
+      icon = Icons.block_outlined;
+      title = 'Cuenta inactiva';
+    } else if (lower.contains('administrador') || lower.contains('admin')) {
+      icon = Icons.admin_panel_settings_outlined;
+      title = 'Acceso no permitido';
+    } else if (lower.contains('servidor') || lower.contains('internet') || lower.contains('conexión')) {
+      icon = Icons.wifi_off_outlined;
+      title = 'Sin conexión';
+    } else {
+      icon = Icons.error_outline;
+      title = 'Error de acceso';
+    }
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+          padding: EdgeInsets.zero,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          duration: const Duration(seconds: 5),
+          content: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF2D1B1B),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppTheme.errorColor.withOpacity(0.6), width: 1),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: AppTheme.errorColor.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: AppTheme.errorColor, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        message,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.85),
+                          fontSize: 12,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppTheme.errorColor,
-              ),
-            );
+            _showErrorToast(context, state.message);
           } else if (state is Authenticated) {
             Navigator.of(context).pushReplacementNamed('/dashboard');
           }
@@ -72,10 +162,10 @@ class _LoginPageState extends State<LoginPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Logo
-                      Icon(
-                        Icons.business_center,
-                        size: 80,
-                        color: AppTheme.primaryColor,
+                      SvgPicture.asset(
+                        'assets/images/logo_practichub.svg',
+                        width: 100,
+                        height: 100,
                       ),
                       const SizedBox(height: 16),
 
@@ -123,8 +213,8 @@ class _LoginPageState extends State<LoginPage> {
                               ],
                             ),
                             const SizedBox(height: 8),
-                            _buildCredentialInfo('Alumno', 'juan@alumno.com'),
-                            _buildCredentialInfo('Profesor', 'ana@profesor.com'),
+                            _buildCredentialInfo('Alumno', 'juan.garcia@alumno.com'),
+                            _buildCredentialInfo('Profesor', 'ana.martinez@iestech.es'),
                             _buildCredentialInfo('Empresa', 'contacto@techsolutions.com'),
                             const SizedBox(height: 4),
                             Text(

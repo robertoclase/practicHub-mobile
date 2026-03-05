@@ -175,32 +175,32 @@ class _ContactoSection extends StatelessWidget {
                 color: Colors.blue,
               ),
             
-            if (empresa.emailContacto != null) ...[
+            if (empresa.emailTutor.isNotEmpty) ...[
               const SizedBox(height: 12),
               _InfoItem(
                 icon: Icons.email,
-                label: 'Email',
-                value: empresa.emailContacto!,
+                label: 'Email Tutor',
+                value: empresa.emailTutor,
                 color: Colors.orange,
               ),
             ],
             
-            if (empresa.telefono != null) ...[
+            if (empresa.email.isNotEmpty) ...[
               const SizedBox(height: 12),
               _InfoItem(
-                icon: Icons.phone,
-                label: 'Teléfono',
-                value: empresa.telefono!,
-                color: Colors.green,
+                icon: Icons.alternate_email,
+                label: 'Email Empresa',
+                value: empresa.email,
+                color: Colors.orange,
               ),
             ],
             
-            if (empresa.telefonoContacto != null) ...[
+            if (empresa.telefono.isNotEmpty) ...[
               const SizedBox(height: 12),
               _InfoItem(
-                icon: Icons.phone_android,
-                label: 'Teléfono Contacto',
-                value: empresa.telefonoContacto!,
+                icon: Icons.phone,
+                label: 'Telefono',
+                value: empresa.telefono,
                 color: Colors.green,
               ),
             ],
@@ -235,67 +235,21 @@ class _InfoSection extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             
-            if (empresa.direccion != null)
+            if (empresa.direccion.isNotEmpty)
               _InfoItem(
                 icon: Icons.location_on,
-                label: 'Dirección',
-                value: empresa.direccion!,
+                label: 'Direccion',
+                value: empresa.direccion,
                 color: Colors.red,
               ),
             
-            if (empresa.horario != null) ...[
-              const SizedBox(height: 12),
-              _InfoItem(
-                icon: Icons.access_time,
-                label: 'Horario',
-                value: empresa.horario!,
-                color: theme.colorScheme.primary,
-              ),
-            ],
-            
-            if (empresa.sector != null) ...[
+            if (empresa.sector.isNotEmpty) ...[
               const SizedBox(height: 12),
               _InfoItem(
                 icon: Icons.category,
                 label: 'Sector',
-                value: empresa.sector!,
+                value: empresa.sector,
                 color: Colors.purple,
-              ),
-            ],
-            
-            if (empresa.descripcion != null) ...[
-              const SizedBox(height: 16),
-              const Divider(),
-              const SizedBox(height: 16),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.description,
-                    color: theme.colorScheme.secondary,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Descripción',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
-                            fontSize: 12,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          empresa.descripcion!,
-                          style: theme.textTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
               ),
             ],
           ],

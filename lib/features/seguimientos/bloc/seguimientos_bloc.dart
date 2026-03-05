@@ -42,7 +42,8 @@ class SeguimientosBloc extends Bloc<SeguimientosEvent, SeguimientosState> {
     emit(const SeguimientosLoading());
 
     try {
-      final seguimiento = await _seguimientosService.getSeguimientoDetalle(event.seguimientoId);
+      final role = await _storageService.getRole() ?? 'alumno';
+      final seguimiento = await _seguimientosService.getSeguimientoDetalle(event.seguimientoId, role);
       emit(SeguimientoDetailLoaded(seguimiento));
     } catch (e) {
       emit(SeguimientosError('Error al cargar detalles: ${e.toString()}'));

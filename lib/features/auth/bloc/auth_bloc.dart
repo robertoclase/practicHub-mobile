@@ -69,9 +69,42 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(Authenticated(user: user, role: role));
       }
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError(_parseLoginError(e)));
       emit(const Unauthenticated());
     }
+  }
+
+  /// Convierte un error de login en un mensaje amigable
+  String _parseLoginError(dynamic e) {
+    // Quitar prefijo 'Exception: ' si lo hay
+    final raw = e.toString().replaceFirst(RegExp(r'^Exception:\s*'), '').trim();
+    if (raw.isEmpty) return 'Error al iniciar sesión. Inténtalo de nuevo.';
+
+    final lower = raw.toLowerCase();
+
+    // Mensajes que vienen directamente de la API (ya son descriptivos)
+    if (lower.contains('no existe') ||
+        lower.contains('correo') ||
+        lower.contains('contraseña') ||
+        lower.contains('inactiv') ||
+        lower.contains('administrador')) {
+      return raw; // devolver el mensaje de la API tal cual
+    }
+
+    // Credenciales genéricas (fallback)
+    if (lower.contains('credencial') || lower.contains('credential') ||
+        lower.contains('unauthorized') || lower.contains('unauthenticated') ||
+        lower.contains('401') || lower.contains('422')) {
+      return 'Correo o contraseña incorrectos.';
+    }
+
+    // Conexión
+    if (lower.contains('timeout') || lower.contains('connection') ||
+        lower.contains('internet') || lower.contains('socket')) {
+      return 'No se pudo conectar con el servidor. Verifica tu internet.';
+    }
+
+    return raw;
   }
 
   /// Procesa el registro
@@ -96,7 +129,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       
       emit(Authenticated(user: user, role: role));
     } catch (e) {
-      emit(AuthError(e.toString()));
+      final raw = e.toString().replaceFirst('Exception: ', '').trim();
+      emit(AuthError(raw.isEmpty ? 'Error al registrarse.' : raw));
       emit(const Unauthenticated());
     }
   }

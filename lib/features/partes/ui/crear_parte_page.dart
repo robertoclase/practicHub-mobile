@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/services/api_services.dart';
 import '../../../core/services/storage_service.dart';
+import '../../../core/models/seguimiento_practica.dart';
 import '../../../widgets/custom_textfield.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/loading_indicator.dart';
@@ -12,11 +13,11 @@ import '../bloc/partes_event.dart';
 import '../bloc/partes_state.dart';
 
 class CrearPartePage extends StatefulWidget {
-  final int seguimientoId;
+  final int? seguimientoId;
 
   const CrearPartePage({
     super.key,
-    required this.seguimientoId,
+    this.seguimientoId,
   });
 
   @override
@@ -33,12 +34,37 @@ class _CrearPartePageState extends State<CrearPartePage> {
 
   DateTime? _selectedDate;
 
+  // Para selector de seguimiento cuando seguimientoId es null
+  List<SeguimientoPractica>? _seguimientos;
+  int? _selectedSeguimientoId;
+  bool _loadingSeguimientos = false;
+
   @override
   void initState() {
     super.initState();
     // Fecha por defecto: hoy
     _selectedDate = DateTime.now();
     _fechaController.text = DateFormatter.formatDate(_selectedDate!);
+    // Si no viene seguimientoId, cargar lista de prácticas del alumno
+    if (widget.seguimientoId == null) {
+      _loadSeguimientos();
+    } else {
+      _selectedSeguimientoId = widget.seguimientoId;
+    }
+  }
+
+  Future<void> _loadSeguimientos() async {
+    setState(() => _loadingSeguimientos = true);
+    try {
+      final service = SeguimientosService();
+      final list = await service.getSeguimientos('alumno');
+      setState(() {
+        _seguimientos = list;
+        _loadingSeguimientos = false;
+      });
+    } catch (_) {
+      setState(() => _loadingSeguimientos = false);
+    }
   }
 
   @override
@@ -111,6 +137,43 @@ class _CrearPartePageState extends State<CrearPartePage> {
                         ),
                         
                         const SizedBox(height: 24),
+                        
+                        // Selector de práctica cuando seguimientoId es null
+                        if (widget.seguimientoId == null) ...[                          
+                          if (_loadingSeguimientos)
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: LinearProgressIndicator(),
+                            )
+                          else if (_seguimientos != null && _seguimientos!.isNotEmpty)
+                            DropdownButtonFormField<int>(
+                              value: _selectedSeguimientoId,
+                              decoration: const InputDecoration(
+                                labelText: 'Práctica / Seguimiento',
+                                prefixIcon: Icon(Icons.business_center),
+                                border: OutlineInputBorder(),
+                              ),
+                              items: _seguimientos!
+                                  .map((s) => DropdownMenuItem(
+                                        value: s.id,
+                                        child: Text(
+                                          s.empresa?.nombre ?? 'Práctica #${s.id}',
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ))
+                                  .toList(),
+                              onChanged: (val) => setState(() => _selectedSeguimientoId = val),
+                              validator: (_) => _selectedSeguimientoId == null
+                                  ? 'Selecciona una práctica'
+                                  : null,
+                            )
+                          else
+                            const Text(
+                              'No tienes prácticas activas',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          const SizedBox(height: 16),
+                        ],
                         
                         // Fecha
                         InkWell(
@@ -243,7 +306,7 @@ class _CrearPartePageState extends State<CrearPartePage> {
 
       context.read<PartesBloc>().add(
             CreateParte(
-              seguimientoId: widget.seguimientoId,
+              seguimientoId: _selectedSeguimientoId ?? widget.seguimientoId!,
               fecha: _selectedDate!,
               horasTrabajadas: int.parse(_horasController.text),
               descripcionActividades: _descripcionController.text,
